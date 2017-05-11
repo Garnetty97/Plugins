@@ -1,0 +1,11 @@
+main: com.gmail.garnetyeates.launchpads.LaunchPads
+name: LaunchPads
+version: 1.0
+author: Garnet Yeates
+description: Fun plugin, go cut
+commands:
+  launchpad:
+    description: An example command
+    usage: /lanchpad create, edit, remove, list
+    permission: launchpad.launchpad
+    permission-message: You don't have the launchpad.launchpad permission.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="LaunchPads" default="makejar" basedir=".">
+    <target name="makejar" description="Create a jar for the project">
+        <jar destfile="C:/Users/Garnet/Desktop/1.11.2 Server/plugins/${ant.project.name}.jar">
+            <fileset dir="bin"></fileset>
+            <fileset file="plugin.yml"></fileset>
+        </jar>
+    </target>
+</project>
