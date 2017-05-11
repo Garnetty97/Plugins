@@ -14,9 +14,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class LaunchPads extends JavaPlugin {
 
-	// TODO make it so they can use /launchpad editclosest/editclose/ec
-	
-	public static String chatPrefix = ChatColor.WHITE + "[" + ChatColor.DARK_AQUA + "LaunchPads" + ChatColor.WHITE + "] ";
+	public static String chatPrefix = ChatColor.GRAY + "[" + ChatColor.DARK_AQUA + "LaunchPads" + ChatColor.GRAY + "] ";
 	
 	private File launchPadDataFile = new File("LaunchPadData.yaml");
 	
@@ -87,15 +85,17 @@ public class LaunchPads extends JavaPlugin {
 				double launchLocZ = pad.getLaunchLocation().getZ();
 				World world = pad.getLocation().getWorld();
 				launchPadSave.add(locX + "," + locY + "," + locZ + "," + launchLocX + "," + launchLocY + ","
-						+ launchLocZ + "," + world.getName());
-				getConfig().set("LaunchPads", launchPadSave);
-	
-				try { getConfig().save(launchPadDataFile); }	
-				catch (IOException e) { e.printStackTrace(); }				
+						+ launchLocZ + "," + world.getName());		
 			} else {
 				getServer().broadcastMessage(chatPrefix + "There was an error saving a LaunchPad");
 			}
 		}
+		
+		getConfig().set("LaunchPads", launchPadSave);
+		
+		try {
+			getConfig().save(launchPadDataFile); }	
+		catch (IOException e) { e.printStackTrace(); }	
 	}
 	
 }

@@ -19,7 +19,8 @@ public class LaunchPad {
 	
 	public LaunchPad(Player creater) {
 		editing = creater.getUniqueId();
-		padLocation = creater.getLocation();
+		Location loc = creater.getLocation();
+		padLocation = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		launchPads.add(this);
 	}
 	
@@ -104,5 +105,4 @@ public class LaunchPad {
 		player.setVelocity(thisWay);
 		
 	}
-	
 }
