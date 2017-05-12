@@ -60,7 +60,10 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		Location loc = player.getLocation();
 		
 		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
-			if (pad.hasEditor() && pad.getEditor().equals(player)) pad.stopEditing();
+			if (pad.hasEditor() && pad.getEditor().equals(player)) {
+				pad.stopEditing();
+				if (!pad.hasLaunchLocation()) pad.terminate();
+			}
 		}
 		
 		if (!LaunchPad.getLaunchPads().isEmpty()) {
@@ -100,6 +103,13 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 
 	private void launchPadCreate(Player player) {
 		LaunchPad padCheck = null;
+		
+		if (LaunchPad.whatPadAmIEditing(player) != null && LaunchPad.whatPadAmIEditing(player).getLaunchLocation() == null) {
+			player.sendMessage(chatPrefix + "You were editing a launchpad before you created this one, and"
+					+ "you hadn't set the launch location, so the launchpad has been terminated");
+			LaunchPad.whatPadAmIEditing(player).terminate();
+		}
+		
 		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
 			if (LaunchPad.compareLocation(pad.getLocation(), player.getLocation())) {
 				padCheck = pad;
