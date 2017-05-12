@@ -17,8 +17,11 @@ public class LaunchPadListener implements Listener {
 			if (!LaunchPad.getLaunchPads().isEmpty()) {
 				for (LaunchPad pad : LaunchPad.getLaunchPads()) {
 					if (LaunchPad.compareLocation(pad.getLocation(), pressurePlateLoc)) {
-						pad.launch(event.getPlayer());
-						break;
+						if (!(pad.hasEditor() && pad.getEditor().equals(event.getPlayer())) && !event.getPlayer().isSneaking()) {
+							pad.launch(event.getPlayer());
+							break;
+						}
+						
 					}
 				}
 			}
