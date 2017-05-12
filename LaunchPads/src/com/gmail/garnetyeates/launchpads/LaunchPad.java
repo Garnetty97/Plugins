@@ -154,11 +154,18 @@ public class LaunchPad {
 		else return launchLocation.clone();
 	}
 	
+	/**
+	 * Removes this LaunchPad. Rest in peace.
+	 */
 	public void terminate() {
 		launchPads.remove(this);
 		editing = null;
 	}
 	
+	/**
+	 * Launches the given player towards the launch location. Bye bye.
+	 * @param player The player to be launched.
+	 */
 	public void launch(Player player) {
 		Vector thisWay = new Vector();
 		thisWay.setX((launchLocation.getX() - padLocation.getX()) / 6);
@@ -166,11 +173,8 @@ public class LaunchPad {
 		thisWay.setZ((launchLocation.getZ() - padLocation.getZ()) / 6);
 		
 		Location loc = player.getLocation();
-		loc.setY(loc.getY() + 1.5
-				 );
+		loc.setY(loc.getY() + 1.5);
 		player.teleport(loc);
-		
-		Bukkit.getServer().broadcastMessage(thisWay.getX() + " " + thisWay.getY() + " " + thisWay.getZ());
 		player.setVelocity(thisWay);
 		
 	}
