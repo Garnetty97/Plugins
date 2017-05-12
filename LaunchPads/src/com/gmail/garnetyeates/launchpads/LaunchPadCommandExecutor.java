@@ -6,7 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 import static com.gmail.garnetyeates.launchpads.LaunchPads.chatPrefix;
 
 public class LaunchPadCommandExecutor implements CommandExecutor {
@@ -21,19 +20,21 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 				} else if (!args[0].equalsIgnoreCase("list")) {
 					Player player = (Player) sender;
 					if (args[0].equalsIgnoreCase("create")) {
-						launchPadCreate(player);
+						commandCreate(player);
 					} else if (args[0].equalsIgnoreCase("sll") || args[0].equalsIgnoreCase("setlaunchlocation")) {
-						launchPadSLL(player);
+						commandSetLaunchLocation(player);
 					} else if (args[0].equalsIgnoreCase("del") || args[0].equalsIgnoreCase("delete")
 							|| args[0].equalsIgnoreCase("remove")) {
-						launchPadDel(player);
+						commandDelete(player);
 					} else if (args[0].equalsIgnoreCase("edit")) {
-						launchPadEdit(player);
+						commandEdit(player);
 					} else if (args[0].equalsIgnoreCase("editclosest") || args[0].equalsIgnoreCase("editclose")) {
-						launchPadEditClosest(player);
-					}
+						commandEditClosest(player);
+					} else if (args[0].equalsIgnoreCase("stopediting") || args[0].equalsIgnoreCase("se")) {
+						commandStopEditing(player);
+					} 
 				} else if (args[0].equalsIgnoreCase("list") && sender instanceof Player) {
-					launchPadList(sender);
+					commandList(sender);
 				} else {
 					sender.sendMessage(chatPrefix + "That's not a fucking command.");
 				}
@@ -41,8 +42,17 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		}
 		return true;
 	}
+	
+	private void commandStopEditing(Player player) {
+		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
+			if (pad.hasEditor() && pad.getEditor().equals(player)) {
+				pad.stopEditing();
+				if (pad.getLaunchLocation() == null) pad.terminate();
+			}
+		}
+	}
 
-	private void launchPadList(CommandSender sender) {
+	private void commandList(CommandSender sender) {
 		if (!LaunchPad.getLaunchPads().isEmpty()) {
 			for (LaunchPad pad : LaunchPad.getLaunchPads()) {
 				int x = pad.getLocation().getBlockX();
@@ -55,39 +65,35 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		}
 	}
 	
-	private void launchPadEditClosest(Player player) {
+	private void commandEditClosest(Player player) {
 		LaunchPad closest = null;
 		Location loc = player.getLocation();
-		
-		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
-			if (pad.hasEditor() && pad.getEditor().equals(player)) {
-				pad.stopEditing();
+		if (LaunchPad.whatPadAmIEditing(player) == null) {
+			if (!LaunchPad.getLaunchPads().isEmpty()) {
+				for (LaunchPad pad : LaunchPad.getLaunchPads()) {
+					double closestLoc = ((closest == null) ? 1e50 : closest.getLocation().distance(loc));
+					if (pad.getLocation().distance(loc) < closestLoc) closest = pad;
+				}
+			} else {
+				player.sendMessage(chatPrefix + "Ain't none dem launchpads dog");
+				return;
 			}
-			if (!pad.hasLaunchLocation()) pad.terminate();
-		}
-		
-		if (!LaunchPad.getLaunchPads().isEmpty()) {
-			for (LaunchPad pad : LaunchPad.getLaunchPads()) {
-				double closestLoc = ((closest == null) ? 1e50 : closest.getLocation().distance(loc));
-				if (pad.getLocation().distance(loc) < closestLoc) closest = pad;
-			}
+			
+			if (!(closest == null)) {
+				closest.setEditor(player);
+				Location cLoc = closest.getLocation();
+				player.teleport(new Location(cLoc.getWorld(), cLoc.getBlockX(), cLoc.getBlockY(), cLoc.getBlockZ()));
+				player.performCommand("tp " + cLoc.getBlockX() + " " + cLoc.getBlockY() + " " + cLoc.getBlockZ());	
+				player.sendMessage(chatPrefix + "Now editing the closest launchpad to you!");
+			} else {
+				player.sendMessage(chatPrefix + "You're way too far away. Like way too far.");
+			}		
 		} else {
-			player.sendMessage(chatPrefix + "Ain't none dem launchpads dog");
-			return;
+			player.sendMessage(chatPrefix + "You need to stop editing in order to issue this command. Type /stopediting or /se");
 		}
-		
-		if (!(closest == null)) {
-			closest.setEditor(player);
-			Location cLoc = closest.getLocation();
-			player.teleport(new Location(cLoc.getWorld(), cLoc.getBlockX(), cLoc.getBlockY(), cLoc.getBlockZ()));
-			player.performCommand("tp " + cLoc.getBlockX() + " " + cLoc.getBlockY() + " " + cLoc.getBlockZ());	
-			player.sendMessage(chatPrefix + "Now editing the closest launchpad to you!");
-		} else {
-			player.sendMessage(chatPrefix + "You're way too far away. Like way too far.");
-		}		
 	}
 
-	private void launchPadSLL(Player player) {
+	private void commandSetLaunchLocation(Player player) {
 		if (LaunchPad.whatPadAmIEditing(player) == null) {
 			player.sendMessage(chatPrefix + "You are not editing any launchpads!");
 		} else {
@@ -101,26 +107,31 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void launchPadCreate(Player player) {
-		boolean alreadyAPadHere = false;
-		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
-			if (pad.hasEditor() && pad.getEditor().equals(player)) pad.stopEditing();
-			if (!pad.hasLaunchLocation()) pad.terminate();
-			if (LaunchPad.compareLocation(pad.getLocation(), player.getLocation())) {
-				alreadyAPadHere = true;
-				break;
+	private void commandCreate(Player player) {
+		if (LaunchPad.whatPadAmIEditing(player) == null) {
+			boolean alreadyAPadHere = false;
+			for (LaunchPad pad : LaunchPad.getLaunchPads()) {
+				if (pad.hasEditor() && pad.getEditor().equals(player)) pad.stopEditing();
+				if (!pad.hasLaunchLocation()) pad.terminate();
+				if (LaunchPad.compareLocation(pad.getLocation(), player.getLocation())) {
+					alreadyAPadHere = true;
+					break;
+				}
 			}
-		}
-		if (alreadyAPadHere == true) {
-			new LaunchPad(player);
-			player.sendMessage(chatPrefix + "You are now editing a new launchpad. Type /launchpad"
-					+ " delete to remove it or /launchpad sll to set/change the launch location.");
+			if (alreadyAPadHere == true) {
+				new LaunchPad(player);
+				player.sendMessage(chatPrefix + "You are now editing a new launchpad. Type /launchpad"
+						+ " delete to remove it or /launchpad sll to set/change the launch location.");
+			} else {
+				player.sendMessage(chatPrefix + "You're re ah id, there's already a launchpad here");
+			}
 		} else {
-			player.sendMessage(chatPrefix + "You're re ah id, there's already a launchpad here");
+			player.sendMessage(chatPrefix + "You need to stop editing before you can issue this command. Type /se or /stopediting");
 		}
+		
 	}
 
-	private void launchPadEdit(Player player) {
+	private void commandEdit(Player player) {
 		if (!LaunchPad.getLaunchPads().isEmpty()) {
 			outer: if (LaunchPad.whatPadAmIEditing(player) != null) {
 				player.sendMessage(chatPrefix + "You are already editing a launchpad, cunt.");
@@ -139,7 +150,7 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void launchPadDel(Player player) {
+	private void commandDelete(Player player) {
 		if (LaunchPad.whatPadAmIEditing(player) == null) {
 			player.sendMessage(chatPrefix + "You are not editing any launchpads!");
 		} else {
