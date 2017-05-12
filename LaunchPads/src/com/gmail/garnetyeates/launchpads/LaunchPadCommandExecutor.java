@@ -47,7 +47,12 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
 			if (pad.hasEditor() && pad.getEditor().equals(player)) {
 				pad.stopEditing();
-				if (pad.getLaunchLocation() == null) pad.terminate();
+				if (pad.getLaunchLocation() == null) {
+					pad.terminate();
+					player.sendMessage(chatPrefix + "The pad that you stopped editing had no launch location so it has been terminated.");
+				} else {
+					player.sendMessage(chatPrefix + "No longer editing.");
+				}
 			}
 		}
 	}
@@ -89,7 +94,8 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 				player.sendMessage(chatPrefix + "You're way too far away. Like way too far.");
 			}		
 		} else {
-			player.sendMessage(chatPrefix + "You need to stop editing in order to issue this command. Type /stopediting or /se");
+			player.sendMessage(chatPrefix + "You need to stop editing in order to issue this command. Type /launchpad"
+					+ " stopediting or /launchpad se");
 		}
 	}
 
@@ -118,7 +124,7 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 					break;
 				}
 			}
-			if (alreadyAPadHere == true) {
+			if (alreadyAPadHere == false) {
 				new LaunchPad(player);
 				player.sendMessage(chatPrefix + "You are now editing a new launchpad. Type /launchpad"
 						+ " delete to remove it or /launchpad sll to set/change the launch location.");

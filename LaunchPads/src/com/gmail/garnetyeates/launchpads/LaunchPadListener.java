@@ -1,6 +1,5 @@
 package com.gmail.garnetyeates.launchpads;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +27,6 @@ public class LaunchPadListener implements Listener {
 	
 	@EventHandler
 	public void ON_LOGOUT(PlayerQuitEvent event) {
-		Bukkit.getServer().broadcastMessage("Nigger");
 		Player player = event.getPlayer();
 		if (LaunchPad.whatPadAmIEditing(player) != null) {
 			LaunchPad pad = LaunchPad.whatPadAmIEditing(player);
