@@ -1,0 +1,11 @@
+main: com.gmail.garnetyeates.pvpplugin.PvpPlugin
+name: PvpPlugin
+version: 1.0
+author: Garnet Yeates
+description: Fun plugin, go cut
+commands:
+  arrowrain:
+    description: An example command
+    usage: /arrowrain
+    permission: pvpplugin.fixme
+    permission-message: You don't have the pvpplugin.fixme permission.
