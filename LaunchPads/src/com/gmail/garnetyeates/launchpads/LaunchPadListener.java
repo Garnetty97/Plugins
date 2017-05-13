@@ -1,6 +1,7 @@
 package com.gmail.garnetyeates.launchpads;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,8 @@ public class LaunchPadListener implements Listener {
 					if (LaunchPad.compareLocation(pad.getLocation(), pressurePlateLoc)) {
 						if (!(pad.hasEditor() && pad.getEditor().equals(event.getPlayer())) && !event.getPlayer().isSneaking()) {
 							pad.launch(event.getPlayer());
+							event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ITEM_FIRECHARGE_USE,
+									5.0f, 0.0f);
 							break;
 						}
 						

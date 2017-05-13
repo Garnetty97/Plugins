@@ -29,6 +29,7 @@ public class LaunchPads extends JavaPlugin {
 		loadCourses();
 	}
 
+	@Override
 	public void onDisable() {
 		writeCoursesToFile();
 	}
