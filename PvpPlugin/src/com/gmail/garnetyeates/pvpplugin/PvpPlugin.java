@@ -1,5 +1,7 @@
 package com.gmail.garnetyeates.pvpplugin;
 
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandExecutor;
@@ -12,10 +14,13 @@ public class PvpPlugin extends JavaPlugin implements CommandExecutor {
 	
 	private Server server = Bukkit.getServer();
 	
+	public static Random random = new Random();
+	
 	@Override
 	public void onEnable() {
 		server.getPluginManager().registerEvents(new ArrowRainListener(), this);
 		getCommand("arrowrain").setExecutor(new ArrowRainCommandExecutor());
+		getCommand("nuke").setExecutor(new ArrowRainCommandExecutor());
 	}
 	
 	@Override
