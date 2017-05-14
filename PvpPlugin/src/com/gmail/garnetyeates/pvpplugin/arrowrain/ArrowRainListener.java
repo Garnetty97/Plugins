@@ -27,7 +27,7 @@ public class ArrowRainListener implements Listener {
 			if (e.getPlayer().getInventory().getItemInMainHand() != null) {
 				Player p = e.getPlayer();
 				ItemStack hand = p.getInventory().getItemInMainHand();
-				if (hand.hasItemMeta() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
+				if (hand != null && hand.hasItemMeta() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
 					Location loc = p.getLocation();
 					if (loc.getPitch() > -35 && loc.getPitch() < 40) {
 						ArrowRainTask art = new ArrowRainTask(p, loc.getDirection(), loc, 25);
