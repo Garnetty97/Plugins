@@ -1,22 +1,54 @@
 package com.gmail.garnetyeates.pvpplugin.arrowrain;
 
-import java.util.Random;
-
-import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.gmail.garnetyeates.pvpplugin.PvpPlugin;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class ArrowRainListener implements Listener {
 
+	@EventHandler
+	public void ON_ARROW_STORM_INITIATE(PlayerInteractEvent e) {
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK
+				|| e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (e.getPlayer().getInventory().getItemInMainHand() != null) {
+				Player p = e.getPlayer();
+				ItemStack hand = p.getInventory().getItemInMainHand();
+				if (hand.hasItemMeta() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
+					Location loc = p.getLocation();
+					if (loc.getPitch() > -35 && loc.getPitch() < 40) {
+						ArrowRainTask art = new ArrowRainTask(p, loc.getDirection(), loc, 25);
+						art.rainHell();
+						if (p.getGameMode() != GameMode.CREATIVE) {
+							if (hand.getAmount() == 1) {
+								p.getInventory().setItemInMainHand(null);
+							} else {
+								hand.setAmount(hand.getAmount() - 1);
+								p.getInventory().setItemInMainHand(hand);
+							}
+						}
+						
+					} else {
+						p.sendMessage(ChatColor.RED + "You cannot be looking too high up or down to use Arrow Rain");
+					}
+				}
+			}
+		}
+	}
+	
 	@EventHandler
 	public void ON_ARROW_HIT(EntityDamageByEntityEvent e) {
 		if (e.getDamager() instanceof Arrow) {
