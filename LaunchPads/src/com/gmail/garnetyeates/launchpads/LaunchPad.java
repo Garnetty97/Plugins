@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -164,18 +165,20 @@ public class LaunchPad {
 	
 	/**
 	 * Launches the given player towards the launch location. Bye bye.
-	 * @param player The player to be launched.
+	 * @param entity The player to be launched.
 	 */
-	public void launch(Player player) {
+	public void launch(Entity entity) {
 		Vector thisWay = new Vector();
-		thisWay.setX((launchLocation.getX() - padLocation.getX()) / 6);
-		thisWay.setY((launchLocation.getY() - padLocation.getY()) / 6);
-		thisWay.setZ((launchLocation.getZ() - padLocation.getZ()) / 6);
-		
-		Location loc = player.getLocation();
-		loc.setY(loc.getY() + 1.5);
-		player.teleport(loc);
-		player.setVelocity(thisWay);
+		thisWay.setX((launchLocation.getX() - padLocation.getX()) / 5);
+		thisWay.setY((launchLocation.getY() - padLocation.getY()) / 5);
+		thisWay.setZ((launchLocation.getZ() - padLocation.getZ()) / 5);
+		Location loc = getLocation();
+		loc.setYaw(entity.getLocation().getYaw());
+		loc.setPitch(entity.getLocation().getPitch());
+		loc.setY(loc.getY() + 2);
+		entity.teleport(loc);
+		entity.setVelocity(new Vector(0, 0, 0));
+		entity.setVelocity(thisWay);
 		
 	}
 }
