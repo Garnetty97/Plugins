@@ -45,7 +45,6 @@ public class ArrowRainTask implements Runnable {
 			velocities[i] = new Vector(XDIR, yDir, ZDIR);
 			yDir += INCREMENT;
 		}
-		removeArrowsAfterDelay();
 	}
 
 	@Override
@@ -62,9 +61,7 @@ public class ArrowRainTask implements Runnable {
 				ARROWMAP.put(a.hashCode(), shooter);
 				arrows.add(a);
 				a.setCustomName("Arrow Rain");
-				if (iterator % 10 == 0) {
-					shooter.playSound(shooter.getLocation(), Sound.ITEM_FIRECHARGE_USE, 0.005F, 1.0F);
-				}
+				if (iterator % 2 == 0) shooter.playSound(shooter.getLocation(), Sound.ENTITY_ARROW_SHOOT, 0.1F, 1.0F);
 			} 
 			iterator++;
 		} else {
@@ -87,6 +84,7 @@ public class ArrowRainTask implements Runnable {
 	
 	public void rainHell() {
 		id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, this, 0, 1);
+		removeArrowsAfterDelay();
 
 	}
 	
