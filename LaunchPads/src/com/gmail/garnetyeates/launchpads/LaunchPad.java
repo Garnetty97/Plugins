@@ -18,6 +18,8 @@ public class LaunchPad {
 	
 	private static ArrayList<LaunchPad> launchPads = new ArrayList<>();
 	
+	public static ArrayList<Entity> fallImmunity = new ArrayList<>();
+	
 	/**
 	 * Constructs a new LaunchPad at the location of the player who created it. This constructor is called
 	 * by the /LaunchPad create command.
@@ -169,9 +171,9 @@ public class LaunchPad {
 	 */
 	public void launch(Entity entity) {
 		Vector thisWay = new Vector();
-		thisWay.setX((launchLocation.getX() - padLocation.getX()) / 5);
-		thisWay.setY((launchLocation.getY() - padLocation.getY()) / 5);
-		thisWay.setZ((launchLocation.getZ() - padLocation.getZ()) / 5);
+		thisWay.setX((launchLocation.getX() - padLocation.getX()) / 7);
+		thisWay.setY((launchLocation.getY() - padLocation.getY()) / 7);
+		thisWay.setZ((launchLocation.getZ() - padLocation.getZ()) / 7);
 		Location loc = getLocation();
 		loc.setYaw(entity.getLocation().getYaw());
 		loc.setPitch(entity.getLocation().getPitch());
@@ -179,6 +181,6 @@ public class LaunchPad {
 		entity.teleport(loc);
 		entity.setVelocity(new Vector(0, 0, 0));
 		entity.setVelocity(thisWay);
-		
+		fallImmunity.add(entity);
 	}
 }

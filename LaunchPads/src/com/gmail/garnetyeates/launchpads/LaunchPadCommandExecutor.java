@@ -8,13 +8,21 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import static com.gmail.garnetyeates.launchpads.LaunchPads.chatPrefix;
 
+import java.util.HashMap;
+
 public class LaunchPadCommandExecutor implements CommandExecutor {
 
+	private HashMap<Player, Location> lastLocationMap = new HashMap<>();
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String name, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("launchpad")) {
-			if (args.length != 1) return false;
-			else {
+			if (args.length == 2) {
+				if ((args[0].equalsIgnoreCase("sll") || args[0].equalsIgnoreCase("setlaunchlocation")) && args[1].equalsIgnoreCase("last")) {
+					commandSetLaunchLocationOnLast((Player) sender);
+				}
+			}
+			else if (args.length == 1) {
 				if (!args[0].equalsIgnoreCase("list") && !(sender instanceof Player)) {
 					sender.sendMessage(chatPrefix + "Only players can use this command");
 				} else if (!args[0].equalsIgnoreCase("list")) {
@@ -32,17 +40,31 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 						commandEditClosest(player);
 					} else if (args[0].equalsIgnoreCase("stopediting") || args[0].equalsIgnoreCase("se")) {
 						commandStopEditing(player);
+					} else if (!args[0].equalsIgnoreCase("list")) {
+						sender.sendMessage(chatPrefix + "That's not a fucking command.");
 					} 
 				} else if (args[0].equalsIgnoreCase("list") && sender instanceof Player) {
 					commandList(sender);
-				} else {
-					sender.sendMessage(chatPrefix + "That's not a fucking command.");
-				}
+				} 
 			}
 		}
 		return true;
 	}
 	
+	private void commandSetLaunchLocationOnLast(Player player) {
+		if (LaunchPad.whatPadAmIEditing(player) == null) {
+			player.sendMessage(chatPrefix + "You are not editing any launchpads!");
+		} else if (lastLocationMap.containsKey(player)) {
+			player.sendMessage(chatPrefix + "You set the new launch location. No longer editing.");
+			LaunchPad padEditing = LaunchPad.whatPadAmIEditing(player);
+			if (padEditing.setLaunchLocation(lastLocationMap.get(player))) {
+				padEditing.stopEditing();
+			} else {
+				player.sendMessage(chatPrefix + "The launch location needs to be in the same world dipfuck.");
+			}			
+		} else player.sendMessage(chatPrefix + "You have no recent launch location so idk what the FUCK to do");
+	}
+
 	private void commandStopEditing(Player player) {
 		for (LaunchPad pad : LaunchPad.getLaunchPads()) {
 			if (pad.hasEditor() && pad.getEditor().equals(player)) {
@@ -107,6 +129,7 @@ public class LaunchPadCommandExecutor implements CommandExecutor {
 			LaunchPad padEditing = LaunchPad.whatPadAmIEditing(player);
 			if (padEditing.setLaunchLocation(player.getLocation())) {
 				padEditing.stopEditing();
+				lastLocationMap.put(player, player.getLocation());
 			} else {
 				player.sendMessage(chatPrefix + "The launch location needs to be in the same world.");
 			}			
