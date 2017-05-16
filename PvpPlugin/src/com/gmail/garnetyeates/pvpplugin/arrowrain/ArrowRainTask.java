@@ -1,5 +1,6 @@
 package com.gmail.garnetyeates.pvpplugin.arrowrain;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.bukkit.Bukkit;
@@ -7,17 +8,19 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import com.gmail.garnetyeates.pvpplugin.PvpPlugin;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class ArrowRainTask implements Runnable {
 	
 	private static final HashMap<Integer, Player> ARROWMAP = new HashMap<>();
 	
-	private Plugin plugin = JavaPlugin.getPlugin(PvpPlugin.class);
+	private static JavaPlugin plugin = JavaPlugin.getPlugin(PvpPlugin.class);
+	
 	private int id = 0;
 	private int iterator = 0;
 	private int maxIterations = 0;
@@ -27,11 +30,36 @@ public class ArrowRainTask implements Runnable {
 	private ArrayList<Arrow> arrows = new ArrayList<>();
 	
 	public ArrowRainTask(Player player, Vector direction, Location shootLoc, int amount) {
-		outer: while (true) {
-			if (Math.abs(direction.getX()) < 0.05 || Math.abs(direction.getZ()) < 0.05) {
-				direction.multiply(1.1);
-			} else break outer;
+		
+		double suitableSpeed = 2;
+		double speed = Math.abs(direction.getX()) + Math.abs(direction.getZ());
+		int tries = 0;
+		while (speed < suitableSpeed - (suitableSpeed / 10) && tries < 200) {
+			direction.multiply(4);
+			speed = Math.abs(direction.getX()) + Math.abs(direction.getZ());
+			tries++;
 		}
+		int tries2 = 0;
+		while (speed > suitableSpeed + (suitableSpeed / 10) && tries2 < 200) {
+			direction.multiply(0.95);
+			speed = Math.abs(direction.getX()) + Math.abs(direction.getZ());
+			tries2++;
+		}
+		
+		double pitch = shootLoc.getPitch();
+		double distanceMultiplier = 1;
+		if (pitch > 25) distanceMultiplier = (95 - pitch) / 115;
+		if (pitch < -25) distanceMultiplier = (130 - pitch) / 75;
+		direction.multiply(distanceMultiplier);
+		
+		if (distanceMultiplier > 1) shootLoc.setY(shootLoc.getY() + distanceMultiplier * 2);
+	
+		DecimalFormat format = new DecimalFormat();
+		format.setMaximumFractionDigits(2);
+		String multiplierString = format.format(distanceMultiplier);
+		
+		player.sendMessage(ChatColor.GREEN + "Launched an arrow storm at your location with a distance multiplier of "
+				+ ChatColor.GOLD + multiplierString + ChatColor.GREEN + ".");
 		
 		velocities = new Vector[amount];
 		maxIterations = amount;
@@ -40,7 +68,7 @@ public class ArrowRainTask implements Runnable {
 		final double XDIR = direction.getX();
 		final double ZDIR = direction.getZ();
 		double yDir = -1;	
-		final double INCREMENT = (Math.abs(yDir) + 0.2) / amount;
+		final double INCREMENT = (Math.abs(yDir) - 0.1) / amount;
 		for (int i = 0; i < velocities.length; i++) {
 			velocities[i] = new Vector(XDIR, yDir, ZDIR);
 			yDir += INCREMENT;
@@ -52,8 +80,8 @@ public class ArrowRainTask implements Runnable {
 		if (iterator < maxIterations) {
 			Vector vec = velocities[iterator];
 			float spread = 6;
-			for (int i = 0; i < 20; i++) {
-				Arrow a = shootLoc.getWorld().spawnArrow(shootLoc, vec, 3.0F, spread);
+			for (int i = 0; i < 15; i++) {
+				Arrow a = shootLoc.getWorld().spawnArrow(shootLoc, vec, 4.0F, spread);
 				spread = spread * 0.9f;
 				a.setShooter(shooter);
 				a.setCritical(true);
@@ -85,7 +113,6 @@ public class ArrowRainTask implements Runnable {
 	public void rainHell() {
 		id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, this, 0, 1);
 		removeArrowsAfterDelay();
-
 	}
 	
 	@SuppressWarnings("unchecked")

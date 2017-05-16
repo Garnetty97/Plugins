@@ -28,14 +28,7 @@ public class ArrowRainCommandExecutor implements CommandExecutor {
 			meta.setLore(lore);
 			arrowRain.setItemMeta(meta);
 			if (PvpPlugin.isMyInventoryFull(p)) p.getWorld().dropItem(p.getLocation(), arrowRain);
-			else p.getInventory().addItem(arrowRain); 
-		}
-		if (cmd.getName().equalsIgnoreCase("Nuke") && sender instanceof Player) {
-			Player player = (Player) sender;
-			for (int i = 0; i < 10; i++) {
-				player.getWorld().createExplosion(player.getLocation(), 75f);
-			}
-			
+			else p.getInventory().addItem(arrowRain);
 		}	
 		return true;
 	}

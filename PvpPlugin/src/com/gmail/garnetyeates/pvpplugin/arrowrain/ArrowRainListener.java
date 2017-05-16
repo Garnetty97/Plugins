@@ -13,6 +13,8 @@ import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import com.gmail.garnetyeates.pvpplugin.PvpPlugin;
 
@@ -22,15 +24,15 @@ public class ArrowRainListener implements Listener {
 
 	@EventHandler
 	public void ON_ARROW_STORM_INITIATE(PlayerInteractEvent e) {
-		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK
-				|| e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (e.getPlayer().getInventory().getItemInMainHand() != null) {
 				Player p = e.getPlayer();
 				ItemStack hand = p.getInventory().getItemInMainHand();
 				if (hand != null && hand.hasItemMeta() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
+					e.setCancelled(true);
 					Location loc = p.getLocation();
-					if (loc.getPitch() > -35 && loc.getPitch() < 40) {
-						ArrowRainTask art = new ArrowRainTask(p, loc.getDirection(), loc, 25);
+					if (loc.getPitch() > -85 && loc.getPitch() < 85) {
+						ArrowRainTask art = new ArrowRainTask(p, loc.getDirection(), loc, 20);
 						art.rainHell();
 						if (p.getGameMode() != GameMode.CREATIVE) {
 							if (hand.getAmount() == 1) {
@@ -40,29 +42,32 @@ public class ArrowRainListener implements Listener {
 								p.getInventory().setItemInMainHand(hand);
 							}
 						}
-						
+
 					} else {
 						p.sendMessage(ChatColor.RED + "You cannot be looking too high up or down to use Arrow Rain");
 					}
 				}
 			}
 		}
+		
 	}
-	
+
 	@EventHandler
 	public void ON_ARROW_HIT(EntityDamageByEntityEvent e) {
 		if (e.getDamager() instanceof Arrow) {
 			Arrow a = (Arrow) e.getDamager();
 			int code = a.hashCode();
 			if (ArrowRainTask.getArrowMap().containsKey(code)) {
-				e.setDamage(e.getDamage() * 2);
+				e.setDamage(e.getDamage() * 3);
+				PotionEffect slownessII = new PotionEffect(PotionEffectType.SLOW, 60, 1);
+				if (e.getEntity() instanceof Player) ((Player) e.getEntity()).addPotionEffect(slownessII);
 				if (ArrowRainTask.getArrowMap().get(code).equals(e.getEntity())) {
 					e.setCancelled(true);
 				}
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void ON_BLOCK_IGNITE(BlockIgniteEvent e) {
 		if (e.getCause() == IgniteCause.EXPLOSION) {
@@ -70,12 +75,12 @@ public class ArrowRainListener implements Listener {
 		}
 		if (e.getCause() == IgniteCause.SPREAD) e.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void ON_BLOCK_BURN(BlockBurnEvent e) {
 		e.setCancelled(true);
 	}
 
-	
-	
+
+
 }
