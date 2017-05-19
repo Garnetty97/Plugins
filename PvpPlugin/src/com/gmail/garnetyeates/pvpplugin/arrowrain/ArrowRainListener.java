@@ -28,7 +28,7 @@ public class ArrowRainListener implements Listener {
 			if (e.getPlayer().getInventory().getItemInMainHand() != null) {
 				Player p = e.getPlayer();
 				ItemStack hand = p.getInventory().getItemInMainHand();
-				if (hand != null && hand.hasItemMeta() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
+				if (hand != null && hand.hasItemMeta() && hand.getItemMeta().hasDisplayName() && hand.getItemMeta().getDisplayName().equalsIgnoreCase(PvpPlugin.arrowStormName)) {
 					e.setCancelled(true);
 					Location loc = p.getLocation();
 					if (loc.getPitch() > -85 && loc.getPitch() < 85) {
@@ -58,7 +58,7 @@ public class ArrowRainListener implements Listener {
 			Arrow a = (Arrow) e.getDamager();
 			int code = a.hashCode();
 			if (ArrowRainTask.getArrowMap().containsKey(code)) {
-				e.setDamage(e.getDamage() * 3);
+				e.setDamage(e.getDamage() * 2);
 				PotionEffect slownessII = new PotionEffect(PotionEffectType.SLOW, 60, 1);
 				if (e.getEntity() instanceof Player) ((Player) e.getEntity()).addPotionEffect(slownessII);
 				if (ArrowRainTask.getArrowMap().get(code).equals(e.getEntity())) {
